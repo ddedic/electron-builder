@@ -1,3 +1,12 @@
+# [](https://github.com/electron-userland/electron-builder/compare/v24.9.3...v) (2023-12-05)
+
+
+### Bug Fixes
+
+* **win:** use `resultOutputPath` to sign custom location for windows ([#7919](https://github.com/electron-userland/electron-builder/issues/7919)) ([4e930a7](https://github.com/electron-userland/electron-builder/commit/4e930a74d7c2e9b53d47e37997b444da95680a24)), closes [#7910](https://github.com/electron-userland/electron-builder/issues/7910)
+
+
+
 # [](https://github.com/electron-userland/electron-builder/compare/v24.9.2...v) (2023-11-29)
 
 
