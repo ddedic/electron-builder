@@ -1,12 +1,17 @@
 #! /usr/bin/env node
-import { computeDefaultAppDirectory, getElectronVersion, use, getDirectoriesConfig } from "../util/util"
-import { printErrorAndExit } from "../util/promise"
-import * as path from "path"
-import BluebirdPromise from "bluebird-lst-c"
-import { DevMetadata } from "../metadata"
-import yargs from "yargs"
-import { readPackageJson } from "../util/readPackageJson"
-import { installOrRebuild } from "../yarn"
+import {
+  computeDefaultAppDirectory,
+  getElectronVersion,
+  use,
+  getDirectoriesConfig,
+} from "../util/util";
+import { printErrorAndExit } from "../util/promise";
+import * as path from "path";
+import BluebirdPromise from "bluebird-lst-c";
+import { DevMetadata } from "../metadata";
+import yargs from "yargs";
+import { readPackageJson } from "../util/readPackageJson";
+import { installOrRebuild } from "../yarn";
 
 async function main() {
   const args: any = yargs
@@ -15,23 +20,36 @@ async function main() {
       default: process.platform,
     })
     .option("arch", {
-      choices: ["ia32", "x64", "all"],
+      choices: ["ia32", "x64", "arm64", "all"],
       default: process.arch,
-    })
-    .argv
+    }).argv;
 
-  const projectDir = process.cwd()
-  const devPackageFile = path.join(projectDir, "package.json")
+  const projectDir = process.cwd();
+  const devPackageFile = path.join(projectDir, "package.json");
 
-  const devMetadata: DevMetadata = await readPackageJson(devPackageFile)
+  const devMetadata: DevMetadata = await readPackageJson(devPackageFile);
   const results: Array<string> = await BluebirdPromise.all([
-    computeDefaultAppDirectory(projectDir, use(getDirectoriesConfig(devMetadata), it => it!.app)),
-    getElectronVersion(devMetadata, devPackageFile)
-  ])
+    computeDefaultAppDirectory(
+      projectDir,
+      use(getDirectoriesConfig(devMetadata), (it) => it!.app)
+    ),
+    getElectronVersion(devMetadata, devPackageFile),
+  ]);
+
+  const arch = args.arch === "arm64" ? "x64" : args.arch;
+  console.log(`****************************************`);
+  console.log(`Installing app dependencies for arch ${arch} to ${results[0]}`);
+  console.log(`****************************************`);
 
   // if two package.json — force full install (user wants to install/update app deps in addition to dev)
-  await installOrRebuild(devMetadata.build, results[0], results[1], args.platform, args.arch, results[0] !== projectDir)
+  await installOrRebuild(
+    devMetadata.build,
+    results[0],
+    results[1],
+    args.platform,
+    arch,
+    results[0] !== projectDir
+  );
 }
 
-main()
-  .catch(printErrorAndExit)
+main().catch(printErrorAndExit);
